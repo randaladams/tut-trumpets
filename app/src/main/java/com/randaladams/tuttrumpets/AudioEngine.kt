@@ -78,6 +78,8 @@ class AudioEngine(private val context: Context) {
         var attackStep = 1f
         var releaseMul = 1f
         var releasing = false
+        var framesPlayed = 0
+        var pendingRelease = false
     }
 
     private val lock = Any()
@@ -151,8 +153,10 @@ class AudioEngine(private val context: Context) {
 
     fun noteOff(id: String) {
         synchronized(lock) {
+            // A quick tap still plays a short, full-volume note: the release
+            // waits until the note has sounded for at least MIN_NOTE_SECONDS.
             for (v in voices) {
-                if (v.id == id && !v.releasing) release(v, 0.30f)
+                if (v.id == id && !v.releasing) v.pendingRelease = true
             }
         }
     }
@@ -182,7 +186,12 @@ class AudioEngine(private val context: Context) {
             val step = s.rate.toDouble() / outRate
             val loopLen = s.loopEnd - s.loopStart
             var dead = false
+            val minFrames = (MIN_NOTE_SECONDS * outRate).toInt()
             for (i in out.indices) {
+                if (v.pendingRelease && !v.releasing && v.framesPlayed >= minFrames) {
+                    release(v, 0.25f)
+                }
+                v.framesPlayed++
                 if (v.releasing) {
                     v.gain *= v.releaseMul
                     if (v.gain < SILENCE) {
@@ -209,5 +218,6 @@ class AudioEngine(private val context: Context) {
     companion object {
         private const val MASTER = 0.8f
         private const val SILENCE = 0.0005f
+        private const val MIN_NOTE_SECONDS = 0.20f
     }
 }

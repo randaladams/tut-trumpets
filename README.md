@@ -8,6 +8,8 @@ cut from the BBC's live broadcast of 16 April 1939.
 
 Press and hold a note to play it; the note sustains while held and fades when
 released. Slide between notes. Each trumpet plays one note at a time.
+The info screen (the "i" button) plays the full 1939 broadcast and links to
+the Wikipedia page and the BBC News article about the trumpets.
 
 ## Installing on your phone
 
@@ -30,6 +32,7 @@ Open the folder in Android Studio and press Run, or:
 
 ## Project layout
 
+- `app/src/main/res/raw/bbc_1939_broadcast.mp3` – the full broadcast
 - `app/src/main/assets/` – note samples (`*_sustain.wav`) and `meta.json` with loop points
 - `AudioEngine.kt` – low-latency mixer with looping sustain and release fades
 - `TrumpetView.kt` – the playing surface and multi-touch handling
