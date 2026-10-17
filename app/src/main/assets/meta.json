@@ -1,0 +1,65 @@
+{
+ "A1": {
+  "label": "Silver low",
+  "src_start": 85.62,
+  "src_end": 88.72,
+  "dur": 3.67,
+  "loop_start_s": 0.18884,
+  "loop_end_s": 1.5512,
+  "sample_rate": 22050
+ },
+ "A2": {
+  "label": "Silver middle",
+  "src_start": 81.64,
+  "src_end": 84.7,
+  "dur": 3.63,
+  "loop_start_s": 0.22748,
+  "loop_end_s": 2.34082,
+  "sample_rate": 22050
+ },
+ "A3": {
+  "label": "Silver high",
+  "src_start": 186.34,
+  "src_end": 188.48,
+  "dur": 2.66,
+  "loop_start_s": 0.30222,
+  "loop_end_s": 1.17646,
+  "sample_rate": 22050
+ },
+ "B1": {
+  "label": "Copper low",
+  "src_start": 144.02,
+  "src_end": 145.56,
+  "dur": 1.82,
+  "loop_start_s": 0.19719,
+  "loop_end_s": 1.22825,
+  "sample_rate": 22050
+ },
+ "B2": {
+  "label": "Copper middle",
+  "src_start": 130.56,
+  "src_end": 136.64,
+  "dur": 6.62,
+  "loop_start_s": 0.37569,
+  "loop_end_s": 5.91755,
+  "sample_rate": 22050
+ },
+ "B3": {
+  "label": "Copper high",
+  "src_start": 123.38,
+  "src_end": 125.04,
+  "dur": 2.23,
+  "loop_start_s": 0.16517,
+  "loop_end_s": 1.31193,
+  "sample_rate": 22050
+ },
+ "B0": {
+  "label": "Copper rare low (A4)",
+  "src_start": 104.3,
+  "src_end": 105.2,
+  "dur": 0.99,
+  "loop_start_s": 0.24463,
+  "loop_end_s": 0.46884,
+  "sample_rate": 22050
+ }
+}
