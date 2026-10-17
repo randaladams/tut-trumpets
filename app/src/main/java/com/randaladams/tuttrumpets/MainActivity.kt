@@ -10,6 +10,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
@@ -77,19 +78,29 @@ class MainActivity : Activity() {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(24), dp(12), dp(24), dp(8))
-            addView(body)
+            setPadding(dp(24), dp(16), dp(24), dp(8))
             addView(playButton, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = dp(16) })
+            ).apply { bottomMargin = dp(16) })
+            addView(body)
             addView(linksHeader)
             addView(linkView("Tutankhamun's trumpets (Wikipedia)", WIKIPEDIA_URL))
             addView(linkView("Recreating the sound of Tutankhamun's trumpets (BBC News)", BBC_URL))
         }
 
+        // A thin rule under the dialog title so scrolled text doesn't run into it.
+        val divider = View(this).apply { setBackgroundColor(0x33FFFFFF) }
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(divider, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1)).apply {
+                topMargin = dp(8)
+            })
+            addView(ScrollView(this@MainActivity).apply { addView(layout) })
+        }
+
         AlertDialog.Builder(this)
             .setTitle("Tutankhamun's Trumpets")
-            .setView(ScrollView(this).apply { addView(layout) })
+            .setView(container)
             .setPositiveButton("Close", null)
             .setOnDismissListener { stopRecording() }
             .show()

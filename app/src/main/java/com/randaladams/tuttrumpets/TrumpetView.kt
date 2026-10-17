@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
@@ -46,6 +47,8 @@ class TrumpetView(
     private class Zone(val note: NoteDef, val rect: RectF)
 
     private val zones = ArrayList<Zone>()
+    private var titleBaseline = 0f
+    private var subBaseline = 0f
     private val active = HashMap<Int, Zone>() // pointer id -> zone
     private val infoRect = RectF()
     private val bellPaths = arrayOf(Path(), Path())
@@ -53,6 +56,7 @@ class TrumpetView(
     private val columnCenterX = FloatArray(2)
 
     private val dp = resources.displayMetrics.density
+    private val sp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 1f, resources.displayMetrics)
     private val colBg = 0xFF121219.toInt()
     private val colText = 0xFFECE9E2.toInt()
     private val colMuted = 0xFF9C98A6.toInt()
@@ -93,17 +97,28 @@ class TrumpetView(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         zones.clear()
         val pad = 16 * dp
-        val header = 84 * dp
         val colGap = 12 * dp
         val colW = (w - pad * 2 - colGap) / 2f
-        infoRect.set(w - pad - 36 * dp, 22 * dp, w - pad, 58 * dp)
+        val infoSize = 40 * dp
+        infoRect.set(w - pad - infoSize, 20 * dp, w - pad, 20 * dp + infoSize)
+
+        // Header text follows the phone's font size but shrinks to fit beside the info button.
+        val textMaxW = infoRect.left - pad - 12 * dp
+        fitText(titlePaint, TITLE, 24 * sp, textMaxW)
+        fitText(subPaint, SUBTITLE, 12 * sp, w - pad * 2)
+        titleBaseline = 20 * dp - titlePaint.ascent()
+        subBaseline = titleBaseline + titlePaint.descent() + 6 * dp - subPaint.ascent()
+        val header = subBaseline + subPaint.descent()
+        colTitlePaint.textSize = min(19 * sp, colW / 4f)
+        noteNamePaint.textSize = min(15 * sp, colW / 6f)
+        notePitchPaint.textSize = min(11 * sp, colW / 11f)
 
         for (g in 0..1) {
             val left = pad + g * (colW + colGap)
             val cx = left + colW / 2f
             columnCenterX[g] = cx
-            columnTitleY[g] = header + 22 * dp
-            val top = header + 40 * dp
+            columnTitleY[g] = header + 14 * dp - colTitlePaint.ascent()
+            val top = columnTitleY[g] + colTitlePaint.descent() + 14 * dp
             val bottom = h - pad
             val notes = NOTES.filter { it.group == g }
             // Rare note gets a smaller zone at the bottom.
@@ -140,8 +155,8 @@ class TrumpetView(
     override fun onDraw(canvas: Canvas) {
         canvas.drawColor(colBg)
         val pad = 16 * dp
-        canvas.drawText("Tutankhamun's Trumpets", pad, 46 * dp, titlePaint)
-        canvas.drawText("BBC broadcast, Cairo, 16 April 1939", pad, 68 * dp, subPaint)
+        canvas.drawText(TITLE, pad, titleBaseline, titlePaint)
+        canvas.drawText(SUBTITLE, pad, subBaseline, subPaint)
         canvas.drawOval(infoRect, infoPaint)
         canvas.drawText(
             "i", infoRect.centerX(),
@@ -176,14 +191,22 @@ class TrumpetView(
 
             val cx = z.rect.centerX()
             val cy = z.rect.centerY()
-            val small = z.rect.height() < 70 * dp
-            noteNamePaint.textSize = (if (small) 13 else 15) * dp
-            canvas.drawText(z.note.name, cx, cy - 2 * dp, noteNamePaint)
+            val gap = 4 * dp
+            val nameH = noteNamePaint.descent() - noteNamePaint.ascent()
+            val pitchH = notePitchPaint.descent() - notePitchPaint.ascent()
+            val blockTop = cy - (nameH + gap + pitchH) / 2f
+            canvas.drawText(z.note.name, cx, blockTop - noteNamePaint.ascent(), noteNamePaint)
             canvas.drawText(
                 "${z.note.pitch} · ${z.note.hz} Hz", cx,
-                cy + min(16 * dp, z.rect.height() / 3f), notePitchPaint
+                blockTop + nameH + gap - notePitchPaint.ascent(), notePitchPaint
             )
         }
+    }
+
+    private fun fitText(p: Paint, text: String, preferred: Float, maxWidth: Float) {
+        p.textSize = preferred
+        val w = p.measureText(text)
+        if (w > maxWidth) p.textSize = preferred * maxWidth / w
     }
 
     private fun zoneAt(x: Float, y: Float): Zone? = zones.firstOrNull { it.rect.contains(x, y) }
@@ -239,5 +262,10 @@ class TrumpetView(
     fun releaseAll() {
         for (pid in active.keys.toList()) releasePointer(pid)
         invalidate()
+    }
+
+    companion object {
+        private const val TITLE = "Tutankhamun's Trumpets"
+        private const val SUBTITLE = "BBC broadcast, Cairo, 16 April 1939"
     }
 }
