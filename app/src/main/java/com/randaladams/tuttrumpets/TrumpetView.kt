@@ -103,9 +103,9 @@ class TrumpetView(
         infoRect.set(w - pad - infoSize, 20 * dp, w - pad, 20 * dp + infoSize)
 
         // Header text follows the phone's font size but shrinks to fit beside the info button.
-        val textMaxW = infoRect.left - pad - 12 * dp
+        val textMaxW = infoRect.left - pad - 16 * dp
         fitText(titlePaint, TITLE, 24 * sp, textMaxW)
-        fitText(subPaint, SUBTITLE, 12 * sp, w - pad * 2)
+        fitText(subPaint, SUBTITLE, 12 * sp, textMaxW)
         titleBaseline = 20 * dp - titlePaint.ascent()
         subBaseline = titleBaseline + titlePaint.descent() + 6 * dp - subPaint.ascent()
         val header = subBaseline + subPaint.descent()
