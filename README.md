@@ -42,3 +42,12 @@ Open the folder in Android Studio and press Run, or:
 
 The samples come from a 1939 BBC broadcast. Check the rights to the recording
 before publishing the app or making this repository public.
+
+## Credits
+
+- Trumpet photographs: Harry Burton, excavation photographs from the 1920s
+  (Burton photos p0700 and P0227, Griffith Institute, University of Oxford).
+  Public domain, via Wikimedia Commons:
+  [silver trumpet](https://commons.wikimedia.org/wiki/File:Silver_trumpet_from_Tutankhamun%27s_tomb.jpg),
+  [copper trumpet](https://commons.wikimedia.org/wiki/File:Tutankhamun%27s_bronze_trumpet.jpg).
+- Audio: BBC broadcast from the Cairo Museum, 16 April 1939.

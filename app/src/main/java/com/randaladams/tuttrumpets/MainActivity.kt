@@ -13,6 +13,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -82,10 +83,19 @@ class MainActivity : Activity() {
             addView(playButton, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dp(16) })
+            addView(photoRow(), LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = dp(16) })
             addView(body)
             addView(linksHeader)
             addView(linkView("Tutankhamun's trumpets (Wikipedia)", WIKIPEDIA_URL))
             addView(linkView("Recreating the sound of Tutankhamun's trumpets (BBC News)", BBC_URL))
+            addView(TextView(this@MainActivity).apply {
+                text = PHOTO_CREDIT
+                textSize = 12f
+                alpha = 0.7f
+                setPadding(0, dp(16), 0, 0)
+            })
         }
 
         // A thin rule under the dialog title so scrolled text doesn't run into it.
@@ -104,6 +114,44 @@ class MainActivity : Activity() {
             .setPositiveButton("Close", null)
             .setOnDismissListener { stopRecording() }
             .show()
+    }
+
+    /** The two Burton photographs side by side; tapping one opens its Wikimedia Commons page. */
+    private fun photoRow(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        addView(
+            photoCard(R.drawable.burton_silver_trumpet, "Silver trumpet (left) and its wooden mute", SILVER_PHOTO_URL),
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) }
+        )
+        addView(
+            photoCard(R.drawable.burton_copper_trumpet, "Copper trumpet (marked GG) with other tomb objects", COPPER_PHOTO_URL),
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6) }
+        )
+    }
+
+    private fun photoCard(resId: Int, caption: String, url: String): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        addView(ImageView(this@MainActivity).apply {
+            setImageResource(resId)
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            contentDescription = caption
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        addView(TextView(this@MainActivity).apply {
+            text = caption
+            textSize = 12f
+            alpha = 0.8f
+            setPadding(0, dp(6), 0, 0)
+        })
+        setOnClickListener { openUrl(url) }
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, "No browser found to open $url", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun linkView(label: String, url: String): TextView = TextView(this).apply {
@@ -149,6 +197,14 @@ class MainActivity : Activity() {
         private const val STOP_LABEL = "■  Stop the broadcast"
         private const val WIKIPEDIA_URL = "https://en.wikipedia.org/wiki/Tutankhamun%27s_trumpets"
         private const val BBC_URL = "https://www.bbc.co.uk/news/world-middle-east-13092827"
+        private const val SILVER_PHOTO_URL =
+            "https://commons.wikimedia.org/wiki/File:Silver_trumpet_from_Tutankhamun%27s_tomb.jpg"
+        private const val COPPER_PHOTO_URL =
+            "https://commons.wikimedia.org/wiki/File:Tutankhamun%27s_bronze_trumpet.jpg"
+        private const val PHOTO_CREDIT =
+            "Photos: Harry Burton, excavation photographs from the 1920s (Burton photos p0700 " +
+                "and P0227, Griffith Institute, University of Oxford). Public domain, via " +
+                "Wikimedia Commons. Tap a photo to see its source page."
 
         private const val INFO_TEXT =
             "Two trumpets, one of silver and one of copper alloy, were found in " +
