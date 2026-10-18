@@ -1,0 +1,38 @@
+name: Fetch photos and license info
+
+on:
+  push:
+    branches: [fetch-photos]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query Wikipedia/Commons for file URLs and licenses, download originals
+        run: |
+          mkdir -p photo-fetch
+          UA="TutTrumpetsApp/0.1 (https://github.com/randaladams/tut-trumpets)"
+          for T in "File:Tutankhamun's_bronze_trumpet.jpg" "File:Silver_trumpet_from_Tutankhamun's_tomb.jpg"; do
+            SAFE=$(echo "$T" | tr -c 'A-Za-z0-9_.\n' '_')
+            curl -sS -A "$UA" -G "https://en.wikipedia.org/w/api.php" \
+              --data-urlencode "action=query" --data-urlencode "format=json" \
+              --data-urlencode "prop=imageinfo" --data-urlencode "iiprop=url|size|extmetadata" \
+              --data-urlencode "iiurlwidth=1200" --data-urlencode "titles=$T" \
+              -o "photo-fetch/$SAFE.json"
+            URL=$(python3 -c "import json,sys;d=json.load(open(sys.argv[1]));p=list(d['query']['pages'].values())[0];ii=p['imageinfo'][0];print(ii.get('thumburl') or ii['url'])" "photo-fetch/$SAFE.json")
+            echo "$T -> $URL"
+            curl -sS -L -A "$UA" "$URL" -o "photo-fetch/$SAFE.img"
+            curl -sS -A "$UA" -G "https://en.wikipedia.org/w/index.php" --data-urlencode "title=$T" --data-urlencode "action=raw" -o "photo-fetch/$SAFE.wikitext" || true
+          done
+          ls -la photo-fetch
+      - name: Commit results to this branch
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add photo-fetch
+          git commit -m "Fetched photos and license metadata"
+          git push
